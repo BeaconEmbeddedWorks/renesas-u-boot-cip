@@ -1,0 +1,10 @@
+/dts-v1/;
+
+#include "r8a774a1.dtsi"
+#include "beacon-rzg2-som.dtsi"
+#include "beacon-rzg2-baseboard.dtsi"
+
+/ {
+	model = "Beacon Embedded Works RZ/G2M Development Kit";
+	compatible =	"beacon,beacon-rzg2m", "renesas,r8a774a1";
+};

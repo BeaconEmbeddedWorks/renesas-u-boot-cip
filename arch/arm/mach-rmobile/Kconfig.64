@@ -63,6 +63,11 @@ config TARGET_EK874
 	help
           Support for Renesas RZG2E EK874 platform
 
+config TARGET_BEACON_RZG2M
+	bool "Beacon Embedded Works RZ/G2M board"
+	help
+          Support for Beacon RZG2M platform
+
 config TARGET_HIHOPE_RZG2M
 	bool "HiHope RZ/G2M board"
 	help
@@ -84,6 +89,7 @@ source "board/renesas/ebisu/Kconfig"
 source "board/renesas/salvator-x/Kconfig"
 source "board/renesas/ulcb/Kconfig"
 source "board/renesas/ek874/Kconfig"
+source "board/beacon/beacon-rzg2m/Kconfig"
 source "board/renesas/hihope-rzg2m/Kconfig"
 source "board/renesas/hihope-rzg2n/Kconfig"
 
