@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Device Tree Source for Base Board of LogicPD RZ/G2 platform.
+ * Device Tree for BeaconEmbeddedWorks RZ/G2 baseboard.
  *
- * Copyright (C) 2019 Logic PD.
+ * Copyright (C) 2020 Compass Electronics Group, LLC
  */
 
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+#include <dt-bindings/clk/versaclock.h>
 
 / {
 	aliases {
@@ -13,6 +15,8 @@
 		serial1 = &hscif0;
 		serial2 = &hscif1;
 		serial3 = &scif0;
+		serial4 = &hscif2;
+		serial5 = &scif5;
 		spi0 = &msiof0;
 		spi1 = &msiof1;
 		spi2 = &msiof2;
@@ -21,59 +25,148 @@
 	};
 
 	chosen {
+		bootargs = "ignore_loglevel rw root=/dev/nfs ip=dhcp";
 		stdout-path = "serial0:115200n8";
 	};
 
-	bl: backlight {
+	backlight: backlight {
 		compatible = "pwm-backlight";
-		pwms = <&pwm0 0 5000000>;
-
+		power-supply = <&reg_lcd>;
+		enable-gpios = <&gpio_exp1 3 GPIO_ACTIVE_HIGH>;
+		pwms = <&pwm0 0 50000>;
 		brightness-levels = <0 4 8 16 32 64 128 255>;
 		default-brightness-level = <6>;
-	};
+	};	
 
-	lvds {
-		compatible = "panel-lvds";
-
-		width-mm = <223>;
-		height-mm = <125>;
-
-		data-mapping = "jeida-24";
-		backlight = <&bl>;
-
-		panel-timing {
-			/* 1024x600@60Hz */
-			clock-frequency = <51200000>;
-			hactive = <1024>;
-			vactive = <600>;
-			hsync-len = <240>;
-			hfront-porch = <40>;
-			hback-porch = <40>;
-			vfront-porch = <15>;
-			vback-porch = <10>;
-			vsync-len = <10>;
-		};
+	hdmi0-out {
+		compatible = "hdmi-connector";
+		type = "a";
 
 		port {
-			lvds_in: endpoint {
+			hdmi0_con: endpoint {
+				remote-endpoint = <&rcar_dw_hdmi0_out>;
 			};
 		};
+	};
+
+	keys {
+		compatible = "gpio-keys";
+
+		key-1 {
+			gpios = <&gpio4 6 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_1>;
+			label = "Switch-1";
+			wakeup-source;
+			debounce-interval = <20>;
+		};
+		key-2 {
+			gpios = <&gpio3 13 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_2>;
+			label = "Switch-2";
+			wakeup-source;
+			debounce-interval = <20>;
+		};
+		key-3 {
+			gpios = <&gpio5 17 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_3>;
+			label = "Switch-3";
+			wakeup-source;
+			debounce-interval = <20>;
+		};
+		key-4 {
+			gpios = <&gpio5 20 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_4>;
+			label = "Switch-4";
+			wakeup-source;
+			debounce-interval = <20>;
+		};
+		key-5 {
+			gpios = <&gpio5 22 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_5>;
+			label = "Switch-4";
+			wakeup-source;
+			debounce-interval = <20>;
+		};
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		pinctrl-0 = <&led_pins>;
+		pinctrl-names = "default";
+
+		led0 {
+			gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;
+			label = "LED0";
+			linux,default-trigger = "heartbeat";
+		};
+		led1 {
+			gpios = <&gpio7 0 GPIO_ACTIVE_HIGH>;
+			label = "LED1";
+			linux,default-trigger = "heartbeat";
+		};
+		led2 {
+			gpios = <&gpio7 1 GPIO_ACTIVE_HIGH>;
+			label = "LED2";
+			linux,default-trigger = "heartbeat";
+		};
+		led3 {
+			gpios = <&gpio7 3 GPIO_ACTIVE_HIGH>;
+			label = "LED3";
+			linux,default-trigger = "heartbeat";
+		};
+	};
+
+	reg_audio: regulator_audio {
+		compatible = "regulator-fixed";
+		regulator-name = "audio-1.8V";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&gpio_exp2 7 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+	
+	reg_lcd: regulator-lcd {
+		compatible = "regulator-fixed";
+		regulator-name = "lcd_panel_pwr";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio_exp1 1 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_lcd_reset: regulator-lcd-reset {
+		compatible = "regulator-fixed";
+		regulator-name = "nLCD_RESET";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio5 3 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		vin-supply = <&reg_lcd>;
+	};
+
+	reg_cam0: regulator_camera {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_cam0";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&gpio_exp2 2 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+	
+	reg_cam1: regulator_camera {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_cam1";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&gpio_exp2 5 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <100000>;
 	};
 
 	sound_card {
 		compatible = "audio-graph-card";
 		label = "rcar-sound";
 		dais = <&rsnd_port0>, <&rsnd_port1>;
-	};
-
-	vbus0_usb2: regulator-vbus0-usb2 {
-		compatible = "regulator-fixed";
-		regulator-name = "USB20_VBUS0";
-		regulator-min-microvolt = <5000000>;
-		regulator-max-microvolt = <5000000>;
-
-		gpio = <&gpio6 24 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
 	};
 
 	vccq_sdhi0: regulator-vccq-sdhi0 {
@@ -85,8 +178,20 @@
 
 		gpios = <&gpio6 30 GPIO_ACTIVE_HIGH>;
 		gpios-states = <1>;
-		states = <3300000 1
-			  1800000 0>;
+		states = <3300000 1>, <1800000 0>;
+	};
+
+	/* External DU dot clocks */
+	x302_clk: x302-clock {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <33000000>;
+	};
+
+	x304_clk: x304-clock {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <25000000>;
 	};
 };
 
@@ -95,7 +200,7 @@
 };
 
 &audio_clk_b {
-	clock-frequency = <24000000>;
+	clock-frequency = <22579200>;
 };
 
 &can0 {
@@ -125,69 +230,45 @@
 		<&versaclock5 2>;
 	clock-names = "du.0", "du.1", "du.2",
 		"dclkin.0", "dclkin.1", "dclkin.2";
-	ports {
-		port@1 {
-			du_out_hdmi0: endpoint {
-                                remote-endpoint = <&dw_hdmi0_in>;
-			};
-		};
-	};
 };
 
 &ehci0 {
 	dr_mode = "otg";
 	status = "okay";
+	clocks = <&cpg CPG_MOD 703>, <&cpg CPG_MOD 704>, <&versaclock5 3>, <&versaclock6_bb 4>;
 };
 
 &ehci1 {
 	status = "okay";
-};
-
-
-/* GP1_20 is used to select (SEL) output direction for LVDS-IF
- * SEL = L => To LVDS Connector
- * SEL = H => To MIPI-DSI
- *
- * Currently just support LVDS Connector so that set LOW for GP1_20
- */
-&gpio1 {
-	lvds-connector-en-gpio{
-		gpio-hog;
-		gpios = <20 GPIO_ACTIVE_HIGH>;
-		output-low;
-		line-name = "lvds-connector-en-gpio";
-	};
-};
-
-&gpio7 {
-	pcie-en-gpio {
-		gpio-hog;
-		gpios = <3 GPIO_ACTIVE_HIGH>;
-		output-high;
-		line-name = "pcie-en-gpio";
-	};
+	/* Hack, we are asking the EHCI to take a clk ref to the Ethernet Phy
+       refclock so Ethernet will work */
+	clocks = <&cpg CPG_MOD 703>, <&cpg CPG_MOD 704>, <&versaclock5 4>;
 };
 
 &hdmi0 {
+	status = "okay";
 	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		port@0 {
+			reg = <0>;
+			dw_hdmi0_in: endpoint {
+				remote-endpoint = <&du_out_hdmi0>;
+			};
+		};
+		port@1 {
+			reg = <1>;
+			rcar_dw_hdmi0_out: endpoint {
+				remote-endpoint = <&hdmi0_con>;
+			};
+		};
 		port@2 {
+			/* HDMI sound */
 			reg = <2>;
 			dw_hdmi0_snd_in: endpoint {
 				remote-endpoint = <&rsnd_endpoint1>;
 			};
 		};
-	};
-};
-
-&hscif0 {
-	pinctrl-0 = <&hscif0_pins>;
-	pinctrl-names = "default";
-
-	uart-has-rtscts;
-	status = "okay";
-	bluetooth {
-		compatible = "ti,wl1837-st";
-		enable-gpios = <&pca9654 2 GPIO_ACTIVE_HIGH>;
 	};
 };
 
@@ -204,11 +285,76 @@
 	status = "okay";
 };
 
-&i2c0 {
+&i2c2 {
+	status = "okay";
+	clock-frequency = <100000>;
+
+	pinctrl-0 = <&i2c2_pins>;
 	pinctrl-names = "default";
-	pinctrl-0 = <&i2c0_pins>;
+
+	gpio_exp2: gpio@21 {
+		compatible = "onnn,pca9654";
+		reg = <0x21>;
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
+
+	gpio_exp3: gpio@22 {
+		compatible = "onnn,pca9654";
+		reg = <0x22>;
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
+	
+	versaclock6_bb: versaclock6_bb@6a {
+		compatible = "idt,5p49v6965";
+		reg = <0x6a>;
+		#clock-cells = <1>;
+		clocks = <&x304_clk>;
+		clock-names = "xin";
+		/* CSI0_MCLK, CSI1_MCLK, AUDIO_CLKIN, USB_HUB_MCLK_BB */
+		assigned-clocks = <&versaclock6_bb 1>, <&versaclock6_bb 2>, <&versaclock6_bb 3>, <&versaclock6_bb 4>;
+		assigned-clock-rates =	<24000000>, <24000000>, <24000000>, <24000000>;
+
+		OUT1 {
+			idt,mode = <VC5_CMOS>;
+			idt,voltage-microvolts = <1800000>;
+			idt,slew-percent = <100>;
+		};
+
+		OUT2 {
+			idt,mode = <VC5_CMOS>;
+			idt,voltage-microvolts = <1800000>;
+			idt,slew-percent = <100>;
+		};
+
+		OUT3 {
+			idt,mode = <VC5_CMOS>;
+			idt,voltage-microvolts = <1800000>;
+			idt,slew-percent = <100>;
+		};
+
+		OUT4 {
+			idt,mode = <VC5_CMOS>;
+			idt,voltage-microvolts = <3300000>;
+			idt,slew-percent = <100>;
+		};
+	};
+};
+
+&i2c0 {
 	status = "okay";
 	clock-frequency = <400000>;
+
+	pinctrl-0 = <&i2c0_pins>;
+	pinctrl-names = "default";
+};
+
+&i2c5 {
+	status = "okay";
+	clock-frequency = <100000>;
+	pinctrl-0 = <&i2c5_pins>;
+	pinctrl-names = "default";
 
 	codec: wm8962@1a {
 		compatible = "wlf,wm8962";
@@ -228,70 +374,35 @@
 			0x0000 /* 3:Default */
 			0x0000 /* 4:Default */
 			0x0000 /* 5:Default */
-			>;
-			port {
-				wm8962_endpoint: endpoint {
-					remote-endpoint = <&rsnd_endpoint0>;
-				};
-			};
-	};
-};
-
-&i2c2 {
-	pinctrl-0 = <&i2c2_pins>;
-	pinctrl-names = "default";
-	clock-frequency = <100000>;
-	status = "okay";
-
-	ov5640: camera@3C {
-		compatible = "ovti,ov5640";
-		reg = <0x3C>;
-		clocks = <&audio_clk_b>;
-		clock-names = "xclk";
-		DOVDD-supply = <&reg_mipi>;
-		AVDD-supply = <&reg_mipi>;
-		DVDD-supply = <&reg_mipi>;
-		status = "okay";
-
+		>;
 		port {
-			ov5640_to_mipi_csi2: endpoint {
-				clock-lanes = <0>;
-				data-lanes = <1 2>;
+			wm8962_endpoint: endpoint {
+				remote-endpoint = <&rsnd_endpoint0>;
 			};
 		};
 	};
-};
 
-&i2c5 {
-	pinctrl-0 = <&i2c5_pins>;
-	pinctrl-names = "default";
-	clock-frequency = <100000>;
-	status = "okay";
-
-	ov5640_2: camera@3C {
-		compatible = "ovti,ov5640";
-		reg = <0x3C>;
-		clocks = <&audio_clk_b>;
-		clock-names = "xclk";
-		DOVDD-supply = <&reg_mipi>;
-		AVDD-supply = <&reg_mipi>;
-		DVDD-supply = <&reg_mipi>;
-		status = "okay";
-
-		port {
-			ov5640_2_to_mipi_csi2: endpoint {
-				clock-lanes = <0>;
-				data-lanes = <1 2>;
-			};
-		};
+	/* 0 - lcd_reset */
+	/* 1 - lcd_pwr */
+	/* 2 - lcd_select */
+	/* 3 - backlight-enable */
+	/* 4 - Touch_shdwn */
+	/* 5 - LCD_H_pol */
+	/* 6 - lcd_V_pol */
+	gpio_exp1: gpio@20 {
+		compatible = "onnn,pca9654";
+		reg = <0x20>;
+		gpio-controller;
+		#gpio-cells = <2>;
 	};
-};
 
-&msiof0 {
-	pinctrl-0 = <&msiof0_pins>;
-	pinctrl-names = "default";
-
-	status = "okay";
+	touchscreen@26 {
+		compatible = "ilitek,ili2117";
+		reg = <0x26>;
+		interrupt-parent = <&gpio5>;
+		interrupts = <9 IRQ_TYPE_EDGE_RISING>;
+		wakeup-source;
+	};
 };
 
 &ohci0 {
@@ -315,22 +426,100 @@
 	clock-frequency = <100000000>;
 };
 
+&pfc {
+	can0_pins: can0 {
+		groups = "can0_data_a";
+		function = "can0";
+	};
+
+	can1_pins: can1 {
+		groups = "can1_data";
+		function = "can1";
+	};
+
+	du_pins: du {
+		groups = "du_rgb888", "du_sync", "du_clk_out_1", "du_disp";
+		function = "du";
+	};
+
+	i2c2_pins: i2c2 {
+		groups = "i2c2_a";
+		function = "i2c2";
+	};
+
+	i2c5_pins: i2c5 {
+		groups = "i2c5";
+		function = "i2c5";
+	};
+
+	led_pins: leds {
+		/* GP_0_4 , AVS1, AVS2, GP_7_3 */
+		pins = "GP_0_4", "GP_7_0", "GP_7_1", "GP_7_3";
+		bias-pull-down;
+	};
+
+	msiof1_pins: msiof1 {
+		groups = "msiof1_clk_g", "msiof1_rxd_g", "msiof1_txd_g";
+		function = "msiof1";
+	};
+
+	pwm0_pins: pwm0 {
+		groups = "pwm0";
+		function = "pwm0";
+	};
+
+	sdhi0_pins: sd0 {
+		groups = "sdhi0_data4", "sdhi0_ctrl";
+		function = "sdhi0";
+		power-source = <3300>;
+	};
+
+	sdhi0_pins_uhs: sd0_uhs {
+		groups = "sdhi0_data4", "sdhi0_ctrl";
+		function = "sdhi0";
+		power-source = <1800>;
+	};
+
+	sound_pins: sound {
+		groups = "ssi01239_ctrl", "ssi0_data", "ssi1_data_a";
+		function = "ssi";
+	};
+
+	sound_clk_pins: sound_clk {
+		groups = "audio_clk_a_a";
+		function = "audio_clk";
+	};
+
+	usb0_pins: usb0 {
+		mux {
+			groups = "usb0";
+			function = "usb0";
+		};
+	};
+
+	usb1_pins: usb1 {
+		mux {
+			groups = "usb1";
+			function = "usb1";
+		};
+	};
+
+	usb30_pins: usb30 {
+		mux {
+			groups = "usb30";
+			function = "usb30";
+		};
+	};
+};
+
 &pwm0 {
 	pinctrl-0 = <&pwm0_pins>;
 	pinctrl-names = "default";
-
-	status = "okay";
-};
-
-&pwm1 {
-	pinctrl-0 = <&pwm1_pins>;
-	pinctrl-names = "default";
-
 	status = "okay";
 };
 
 &rcar_sound {
-	pinctrl-0 = <&sound_pins>, <&sound_clk_pins>;
+	pinctrl-0 = <&sound_pins &sound_clk_pins>;
 	pinctrl-names = "default";
 
 	/* Single DAI */
@@ -356,8 +545,9 @@
 		 <&cpg CPG_MOD 1020>, <&cpg CPG_MOD 1021>,
 		 <&cpg CPG_MOD 1020>, <&cpg CPG_MOD 1021>,
 		 <&cpg CPG_MOD 1019>, <&cpg CPG_MOD 1018>,
-		 <&audio_clk_a>, <&audio_clk_b>, <&audio_clk_c>,
+		 <&audio_clk_a>, <&audio_clk_b>, <&audio_clk_c>, 
 		 <&cpg CPG_CORE R8A774A1_CLK_S0D4>;
+
 	ports {
         #address-cells = <1>;
         #size-cells = <0>;
@@ -370,7 +560,8 @@
 				bitclock-master = <&rsnd_endpoint0>;
 				frame-master = <&rsnd_endpoint0>;
 
-				playback = <&ssi1>;
+				playback = <&ssi1 &dvc1 &src1>;
+				capture = <&ssi0>;
 			};
 		};
 		rsnd_port1: port@1 {
@@ -388,8 +579,28 @@
 	};
 };
 
+&msiof1 {
+	pinctrl-0 = <&msiof1_pins>;
+	pinctrl-names = "default";
+	status = "okay";
+	cs-gpios = <&gpio3 10 GPIO_ACTIVE_LOW>;
+
+	spidev1@0x00 {
+	       compatible = "spidev";
+	       spi-max-frequency = <5000000>;
+	       reg = <0>;
+	};
+};
+
 &scif0 {
 	pinctrl-0 = <&scif0_pins>;
+	pinctrl-names = "default";
+
+	status = "okay";
+};
+
+&scif5 {
+	pinctrl-0 = <&scif5_pins>;
 	pinctrl-names = "default";
 
 	status = "okay";
@@ -420,22 +631,18 @@
 &usb2_phy0 {
 	pinctrl-0 = <&usb0_pins>;
 	pinctrl-names = "default";
-
-	vbus-supply = <&vbus0_usb2>;
 	status = "okay";
 };
 
 &usb2_phy1 {
 	pinctrl-0 = <&usb1_pins>;
 	pinctrl-names = "default";
-
 	status = "okay";
 };
 
 &usb3_peri0 {
 	phys = <&usb3_phy0>;
 	phy-names = "usb";
-
 	status = "okay";
 };
 
@@ -447,122 +654,5 @@
 {
 	pinctrl-0 = <&usb30_pins>;
 	pinctrl-names = "default";
-
 	status = "okay";
-};
-
-&pfc {
-	can0_pins: can0 {
-		groups = "can0_data_a";
-		function = "can0";
-	};
-
-	can1_pins: can1 {
-		groups = "can1_data";
-		function = "can1";
-	};
-
-	du_pins: du {
-		groups = "du_rgb888", "du_sync", "du_oddf", "du_clk_out_0";
-		function = "du";
-	};
-
-	i2c0_pins: i2c0 {
-		groups = "i2c0";
-		function = "i2c0";
-	};
-
-	hscif0_pins: hscif0 {
-		groups = "hscif0_data", "hscif0_ctrl";
-		function = "hscif0";
-	};
-
-	hscif1_pins: hscif1 {
-		groups = "hscif1_data_a", "hscif1_ctrl_a";
-		function = "hscif1";
-	};
-
-	i2c2_pins: i2c2 {
-		groups = "i2c2_a";
-		function = "i2c2";
-	};
-
-	i2c5_pins: i2c5 {
-		groups = "i2c5";
-		function = "i2c5";
-	};
-
-	msiof0_pins: spi0 {
-		groups = "msiof0_clk", "msiof0_sync",
-			 "msiof0_rxd", "msiof0_txd";
-		function = "msiof0";
-	};
-
-	pwm0_pins: pwm0 {
-		groups = "pwm0";
-		function = "pwm0";
-	};
-
-	pwm1_pins: pwm1 {
-		groups = "pwm1_a";
-		function = "pwm1";
-	};
-
-	scif0_pins: scif0 {
-		groups = "scif0_data";
-		function = "scif0";
-	};
-
-	scif2_pins: scif2 {
-		groups = "scif2_data_a";
-		function = "scif2";
-	};
-
-	sdhi0_pins: sd0 {
-		groups = "sdhi0_data4", "sdhi0_ctrl";
-		function = "sdhi0";
-		power-source = <3300>;
-	};
-
-	sdhi0_pins_uhs: sd0_uhs {
-		groups = "sdhi0_data4", "sdhi0_ctrl";
-		function = "sdhi0";
-		power-source = <1800>;
-	};
-
-	sound_pins: sound {
-		groups = "ssi01239_ctrl", "ssi0_data", "ssi1_data_a";
-		function = "ssi";
-	};
-
-	sound_clk_pins: sound_clk {
-		groups = "audio_clk_a_a";
-		function = "audio_clk";
-	};
-
-	usb0_pins: usb0 {
-		groups = "usb0";
-		function = "usb0";
-	};
-
-	usb1_pins: usb1 {
-		mux {
-			groups = "usb1";
-			function = "usb1";
-		};
-
-		ovc {
-			pins = "GP_6_27";
-			bias-pull-up;
-		};
-
-		pwen {
-			pins = "GP_6_26";
-		};
-	};
-
-	usb30_pins: usb30 {
-		groups = "usb30";
-		function = "usb30";
-	};
 };
