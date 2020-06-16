@@ -1,21 +1,16 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * include/configs/hihope-rzg2m.h
- *     This file is HOPERUN HiHope-RZG2M board configuration.
- *
- * Copyright (C) 2019 Renesas Electronics Corporation
+ * Copyright (C) 2020 Compass Electronics Group, LLC
  */
 
-#ifndef __HIHOPE_RZG2M_H
-#define __HIHOPE_RZG2M_H
+#ifndef __BEACON_RZG2M_H
+#define __BEACON_RZG2M_H
 
 #include "rcar-gen3-common.h"
 
 /* Ethernet RAVB */
-#if 1
 #define CONFIG_BITBANGMII
 #define CONFIG_BITBANGMII_MULTI
-#endif
 
 /* Generic Timer Definitions (use in assembler source) */
 #define COUNTER_FREQUENCY	0xFE502A	/* 16.66MHz from CPclk */
@@ -25,4 +20,4 @@
 #define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
 
-#endif /* __HIHOPE_RZG2M_H */
+#endif /* __BEACON_RZG2M_H */
