@@ -29,7 +29,8 @@
 	"script=boot.scr\0" \
 	"image=Image\0" \
 	"console=ttySC0,115200\0" \
-	"fdt_addr=0x48080000\0"			\
+	"fdt_addr=0x48000000\0"			\
+	"loadaddr=0x48080000\0"	\
 	"fdt_high=0xffffffffffffffff\0"		\
 	"boot_fdt=try\0" \
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
