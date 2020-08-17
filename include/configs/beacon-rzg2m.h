@@ -36,6 +36,7 @@
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"initrd_addr=0x43800000\0"		\
 	"initrd_high=0xffffffffffffffff\0" \
+	"ramdisk_file=rootfs.cpio.uboot\0" \
 	"mmcdev=0\0" \
 	"mmcpart=1\0" \
 	"mmcrootpart=2\0" \
@@ -43,11 +44,18 @@
 	"mmcautodetect=yes\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 	" root=PARTUUID=${uuid} rootwait rw ${optargs}\0" \
+	"ramargs=setenv bootargs console=${console} " \
+	" root=/dev/ram rw ${optargs}\0"                    \
 	"loadbootscript=load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
 	"loadimage=load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=load mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+	"loadramdisk=load mmc ${mmcdev}:${mmcpart} ${initrd_addr} "\
+	" ${ramdisk_file}\0" \
+	"mmcramboot=run ramargs; run loadimage;" \
+	" run loadfdt; run loadramdisk;" \
+	" booti ${loadaddr} ${initrd_addr} ${fdt_addr}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run finduuid; run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
