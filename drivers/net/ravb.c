@@ -130,6 +130,7 @@ struct ravb_priv {
 	struct mii_dev		*bus;
 	void __iomem		*iobase;
 	struct clk		clk;
+	struct clk		*refclk;
 	struct gpio_desc	reset_gpio;
 };
 
@@ -489,6 +490,8 @@ static int ravb_probe(struct udevice *dev)
 	if (ret < 0)
 		goto err_mdio_alloc;
 
+	eth->refclk = devm_clk_get_optional(dev, "refclk");
+
 	ret = dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0, &phandle_args);
 	if (!ret) {
 		gpio_request_by_name_nodev(phandle_args.node, "reset-gpios", 0,
@@ -522,6 +525,10 @@ static int ravb_probe(struct udevice *dev)
 	if (ret)
 		goto err_mdio_register;
 
+	ret = clk_enable(eth->refclk);
+	if (ret)
+		goto err_disable_clk;
+
 	ret = ravb_reset(dev);
 	if (ret)
 		goto err_mdio_reset;
@@ -533,6 +540,8 @@ static int ravb_probe(struct udevice *dev)
 	return 0;
 
 err_mdio_reset:
+	clk_disable(eth->refclk);
+err_disable_clk:
 	clk_disable(&eth->clk);
 err_mdio_register:
 	mdio_free(mdiodev);
@@ -545,6 +554,7 @@ static int ravb_remove(struct udevice *dev)
 {
 	struct ravb_priv *eth = dev_get_priv(dev);
 
+	clk_disable(eth->refclk);
 	clk_disable(&eth->clk);
 
 	free(eth->phydev);
