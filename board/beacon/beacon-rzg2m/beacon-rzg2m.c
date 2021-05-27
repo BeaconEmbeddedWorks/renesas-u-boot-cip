@@ -85,27 +85,6 @@ int board_init(void)
 	return 0;
 }
 
-int board_late_init(void)
-{
-	/* If already defined, exit */
-	if (env_get("fdt_file"))
-		return 0;
-
-	switch (rmobile_get_cpu_type()) {
-	case RMOBILE_CPU_TYPE_R8A774A1:
-		env_set("fdt_file", "r8a774a1-beacon-rzg2m-kit.dtb");
-		break;
-	case RMOBILE_CPU_TYPE_R8A774B1:
-		env_set("fdt_file", "r8a774b1-beacon-rzg2n-kit.dtb");
-		break;
-	case RMOBILE_CPU_TYPE_R8A774E1:
-		env_set("fdt_file", "r8a774e1-beacon-rzg2h-kit.dtb");
-		break;
-	}
-
-	return 0;
-}
-
 int dram_init(void)
 {
 	if (fdtdec_setup_mem_size_base() != 0)

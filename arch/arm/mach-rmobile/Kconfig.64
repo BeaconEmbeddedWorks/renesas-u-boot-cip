@@ -67,7 +67,6 @@ config TARGET_BEACON_RZG2M
 	bool "Beacon Embedded Works RZ/G2M board"
 	help
           Support for Beacon RZG2M platform
-	select BOARD_LATE_INIT
 
 config TARGET_HIHOPE_RZG2M
 	bool "HiHope RZ/G2M board"

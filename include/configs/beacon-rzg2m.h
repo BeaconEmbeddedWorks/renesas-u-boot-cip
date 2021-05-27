@@ -33,6 +33,7 @@
 	"loadaddr=0x48080000\0"	\
 	"fdt_high=0xffffffffffffffff\0"		\
 	"boot_fdt=try\0" \
+	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"initrd_addr=0x43800000\0"		\
 	"initrd_high=0xffffffffffffffff\0" \
 	"ramdisk_file=rootfs.cpio.uboot\0" \
