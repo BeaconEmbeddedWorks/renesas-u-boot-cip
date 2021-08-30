@@ -11,16 +11,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void s_init(void)
-{
-}
-
-/* Kconfig forces this on, so just return 0 */
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 /* HSUSB block registers */
 #define HSUSB_REG_LPSTS			0xE6590102
 #define HSUSB_REG_LPSTS_SUSPM_NORMAL	BIT(14)
