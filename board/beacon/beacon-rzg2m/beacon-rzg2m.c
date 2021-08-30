@@ -56,15 +56,6 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-#define RST_BASE	0xE6160000
-#define RST_CA57RESCNT	(RST_BASE + 0x40)
-#define RST_CODE	0xA5A5000F
-
-void reset_cpu(ulong addr)
-{
-	writel(RST_CODE, RST_CA57RESCNT);
-}
-
 #if IS_ENABLED(CONFIG_MULTI_DTB_FIT)
 int board_fit_config_name_match(const char *name)
 {
