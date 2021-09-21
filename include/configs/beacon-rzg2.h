@@ -21,7 +21,6 @@
 	"fdt_addr=0x48000000\0" \
 	"loadaddr=0x48080000\0" \
 	"boot_fdt=try\0" \
-	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"initrd_addr=0x43800000\0"		\
 	"mmcdev=0\0" \
 	"mmcpart=1\0" \

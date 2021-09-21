@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <asm/arch/rcar-mstp.h>
 #include <linux/delay.h>
+#include <env.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -19,6 +20,16 @@ DECLARE_GLOBAL_DATA_PTR;
 #define HSUSB_REG_UGCTRL2_USB0SEL_EHCI	0x10
 #define HSUSB_REG_UGCTRL2_RESERVED_3	0x00000001 /* bit[3:0] must be B'0001 */
 #define HSUSB_MSTP704		BIT(4)	/* HSUSB */
+
+static u8 get_SoC_letter(void)
+{
+	const u8* name = rzg_get_cpu_name();
+
+	if (*name)
+		return name[6];
+
+	return 0;
+}
 
 int board_init(void)
 {
@@ -41,6 +52,28 @@ int board_init(void)
 	return 0;
 }
 
+int board_late_init(void)
+{
+	/* If already defined, exit */
+	if (!env_get("fdt_file"))
+	{
+		switch (get_SoC_letter())
+		{
+		case 'A':
+			env_set("fdt_file", "r8a774a1-beacon-rzg2m-kit.dtb");
+			break;
+		case 'B':
+			env_set("fdt_file", "r8a774b1-beacon-rzg2n-kit.dtb");
+			break;
+		case 'E':
+			env_set("fdt_file", "r8a774e1-beacon-rzg2h-kit.dtb");
+			break;
+		}
+	}
+
+	return 0;
+}
+
 int dram_init(void)
 {
 	if (fdtdec_setup_mem_size_base() != 0)
@@ -59,15 +92,15 @@ int dram_init_banksize(void)
 #if IS_ENABLED(CONFIG_MULTI_DTB_FIT)
 int board_fit_config_name_match(const char *name)
 {
-	if (!strcmp(rzg_get_cpu_name(), "R8A774A1") && !strcmp(name, "r8a774a1-beacon-rzg2m-kit"))
-		return 0;
-
-	if (!strcmp(rzg_get_cpu_name(), "R8A774B1") && !strcmp(name, "r8a774b1-beacon-rzg2n-kit"))
-		return 0;
-
-	if (!strcmp(rzg_get_cpu_name(), "R8A774E1") && !strcmp(name, "r8a774e1-beacon-rzg2h-kit"))
-		return 0;
-
+	switch (get_SoC_letter())
+	{
+	case 'A':
+		return strcmp(name, "r8a774a1-beacon-rzg2m-kit") ? -1 : 0;
+	case 'B':
+		return strcmp(name, "r8a774b1-beacon-rzg2n-kit") ? -1 : 0;
+	case 'E':
+		return strcmp(name, "r8a774e1-beacon-rzg2h-kit") ? -1 : 0;
+	}
 	return -1;
 }
 #endif
