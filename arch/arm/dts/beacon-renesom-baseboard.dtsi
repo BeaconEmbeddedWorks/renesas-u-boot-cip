@@ -8,6 +8,14 @@
 #include <dt-bindings/clk/versaclock.h>
 
 / {
+
+	aliases {
+			mmc0=&sdhi0;
+			mmc1=&sdhi3;
+			mmc2=&sdhi1;
+			mmc3=&sdhi2;
+	};
+
 	backlight_lvds: backlight-lvds {
 		compatible = "pwm-backlight";
 		power-supply = <&reg_lcd>;
