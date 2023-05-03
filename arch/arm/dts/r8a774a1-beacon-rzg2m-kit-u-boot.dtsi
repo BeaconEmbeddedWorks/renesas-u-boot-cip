@@ -13,10 +13,6 @@
 	};
 };
 
-&avb {
-	phy-mode = "rgmii-txid";
-};
-
 &cpg {
 	u-boot,dm-pre-reloc;
 };
